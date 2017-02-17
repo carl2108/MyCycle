@@ -8,10 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
-
 /**
  * Created by carloconnor on 16/02/17.
  */
@@ -34,7 +30,8 @@ public class TestFragment extends Fragment {
     public void incrementTextview() {
         int i = Integer.parseInt(textView.getText().toString());
         i++;
-        textView.setText(i);
+        String s = String.valueOf(i);
+        textView.setText(s);
     }
 
 }

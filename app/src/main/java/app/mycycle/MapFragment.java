@@ -5,14 +5,9 @@ import android.content.Context;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -34,16 +29,7 @@ public class MapFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.map_fragment, container, false);
-
         Context context = view.getContext();
-
-        TestVariable testVariable = new TestVariable();
-        testVariable.setListener(new TestVariable.ChangeListener() {
-            @Override
-            public void onChange() {
-                Log.e("TEST", "onChange listener called");
-            }
-        });
 
 
         //TODO important! set your user agent to prevent getting banned from the osm servers
@@ -52,8 +38,8 @@ public class MapFragment extends Fragment {
         MapView map = (MapView) view.findViewById(R.id.map);
         //map.setTileSource(TileSourceFactory.MAPNIK);
 
-        map.setBuiltInZoomControls(true);                                                           //zoom buttons and multitouch zoom
-        map.setMultiTouchControls(true);
+        //map.setBuiltInZoomControls(true);                                                           //zoom buttons and multitouch zoom
+        //map.setMultiTouchControls(true);
 
         IMapController mapController = map.getController();                                         //set default view point
         mapController.setZoom(20);
@@ -62,14 +48,13 @@ public class MapFragment extends Fragment {
 
 
 
-        GpsMyLocationProvider gpsMyLocationProvider = new GpsMyLocationProvider(context);              //my location overlay
+        GpsMyLocationProvider gpsMyLocationProvider = new CustomLocationProvider(context, getActivity());              //my location overlay
         MyLocationNewOverlay myLocationOverlay = new MyLocationNewOverlay(gpsMyLocationProvider, map);
         myLocationOverlay.enableMyLocation();
-        //GeoPoint myLocation = myLocationOverlay.getMyLocation();
+        //GeoPoint myLocation = myLocationOverlay.getMyLocation();                                                      //todo - use to initialise stopwatch fragment location?
         //Log.v("LOG", "Longitude: " + myLocation.getLongitude() + " Latitude: " + myLocation.getLatitude());
         myLocationOverlay.enableFollowLocation();
         map.getOverlays().add(myLocationOverlay);
-
 
 
         CompassOverlay compassOverlay = new CompassOverlay(context, new InternalCompassOrientationProvider(context), map);          //compass overlay
@@ -79,4 +64,5 @@ public class MapFragment extends Fragment {
         return view;
 
     }
+
 }

@@ -1,26 +1,38 @@
 package app.mycycle;
 
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 /**
  * Created by carloconnor on 15/02/17.
  */
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements CustomLocationProvider.CustomLocationListener {
+
+    TestFragment testFragment;
+    StopwatchFragment stopwatchFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Remove title bar
+        getSupportActionBar().hide();
+
+        //Remove notification bar
+        //this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+
         setContentView(R.layout.activity_main);
 
-        StopwatchFragment stopwatchFragment = new StopwatchFragment();
+        stopwatchFragment = new StopwatchFragment();
         SpeedGraphFragment speedGraphFragment = new SpeedGraphFragment();
         MapFragment mapFragment = new MapFragment();
-        TestFragment testFragment = new TestFragment();
+        testFragment = new TestFragment();
 
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -31,8 +43,12 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
 
 
+    }
 
-
+    @Override
+    public void updateLocation(Location location) {
+        Log.e("GPS", "Location received! Latitude: " + location.getLatitude() + " Longitude: " + location.getLongitude());
+        stopwatchFragment.updateStopwatch(location);
     }
 
 }
