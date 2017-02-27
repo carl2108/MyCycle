@@ -2,4 +2,9 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <dimen name="stopwatch_fragment_label_height">10dp</dimen>
+    <dimen name="stopwatch_fragment_value_height">24dp</dimen>
+    <dimen name="stopwatch_fragment_label_width">80dp</dimen>
+    <dimen name="stopwatch_fragment_value_width">80dp</dimen>
 </resources>

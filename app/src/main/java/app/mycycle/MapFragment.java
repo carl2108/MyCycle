@@ -13,6 +13,7 @@ import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
@@ -23,6 +24,9 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
  */
 
 public class MapFragment extends Fragment {
+    private final static String LOG = "LOG";
+
+    MapView map;
 
     @Nullable
     @Override
@@ -35,7 +39,7 @@ public class MapFragment extends Fragment {
         //TODO important! set your user agent to prevent getting banned from the osm servers
         Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
 
-        MapView map = (MapView) view.findViewById(R.id.map);
+        map = (MapView) view.findViewById(R.id.map);
         //map.setTileSource(TileSourceFactory.MAPNIK);
 
         //map.setBuiltInZoomControls(true);                                                           //zoom buttons and multitouch zoom
@@ -56,13 +60,17 @@ public class MapFragment extends Fragment {
         myLocationOverlay.enableFollowLocation();
         map.getOverlays().add(myLocationOverlay);
 
+        Polyline routeLine = new Polyline();
 
         CompassOverlay compassOverlay = new CompassOverlay(context, new InternalCompassOrientationProvider(context), map);          //compass overlay
         compassOverlay.enableCompass();
         map.getOverlays().add(compassOverlay);
 
         return view;
+    }
 
+    public void drawRoute(Polyline polyline) {
+        map.getOverlays().add(polyline);
     }
 
 }

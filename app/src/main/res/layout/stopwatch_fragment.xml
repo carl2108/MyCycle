@@ -4,14 +4,17 @@
     android:id="@+id/stopwatch_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="app.mycycle.StopwatchActivity">
+    tools:context="app.mycycle.MainActivity">
 
     <TextView
         android:text="Current Speed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/label_current_speed"
-        android:textSize="14sp"
+        android:textSize="10sp"
+        android:textAlignment="textEnd"
+        android:layout_marginLeft="60dp"
+        android:gravity="end"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
@@ -20,7 +23,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/current_speed"
-        android:textSize="30sp"
+        android:textSize="24sp"
+        android:textAlignment="textEnd"
+        android:gravity="end"
         android:layout_below="@+id/label_current_speed"
         android:layout_alignRight="@+id/label_current_speed"
         android:layout_alignEnd="@+id/label_current_speed" />
@@ -30,7 +35,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/label_average_speed"
-        android:textSize="14sp"
+        android:textSize="10sp"
+        android:textAlignment="textEnd"
+        android:layout_marginLeft="60dp"
+        android:gravity="end"
         android:layout_below="@+id/current_speed"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -40,19 +48,37 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/average_speed"
-        android:textSize="30sp"
+        android:textSize="24sp"
+        android:textAlignment="textEnd"
+        android:gravity="end"
         android:layout_below="@+id/label_average_speed"
-        android:layout_alignLeft="@+id/current_speed"
-        android:layout_alignStart="@+id/current_speed" />
+        android:layout_alignRight="@+id/label_average_speed" />
+
+    <TextView
+        android:text="Time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/label_time"
+        android:textSize="10sp"
+        android:textAlignment="textEnd"
+        android:gravity="end"
+        android:layout_marginRight="25dp"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/label_current_speed"
+        android:layout_toLeftOf="@+id/start_button"
+        android:layout_toStartOf="@+id/start_button" />
 
     <Chronometer
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/chronometer"
-        android:textSize="30sp"
+        android:textSize="24sp"
+        android:textAlignment="textEnd"
+        android:gravity="end"
         android:layout_below="@+id/label_time"
         android:layout_alignLeft="@+id/label_time"
-        android:layout_alignStart="@+id/label_time"
+        android:layout_alignRight="@+id/label_time"
+        android:layout_alignEnd="@+id/label_time"
         android:textColor="?attr/colorControlNormal" />
 
     <TextView
@@ -60,53 +86,43 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/label_total_distance"
-        android:textSize="14sp"
+        android:textSize="10sp"
         android:layout_alignBaseline="@+id/label_average_speed"
-        android:layout_alignBottom="@+id/label_average_speed"
-        android:layout_alignLeft="@+id/label_time"
-        android:layout_alignStart="@+id/label_time" />
+        android:layout_alignBottom="@+id/chronometer"
+        android:layout_alignLeft="@+id/stop_button"
+        android:layout_alignRight="@+id/label_time"
+        android:layout_alignEnd="@+id/label_time" />
 
     <TextView
         android:text="0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/total_distance"
-        android:textSize="30sp"
-        android:layout_below="@+id/label_total_distance"
+        android:textSize="24sp"
+        android:textAlignment="textEnd"
+        android:gravity="end"
+        android:layout_alignBaseline="@+id/average_speed"
+        android:layout_alignBottom="@+id/label_total_distance"
         android:layout_alignRight="@+id/average_speed"
         android:layout_alignEnd="@+id/label_time"
-        android:layout_alignLeft="@+id/label_time"
-        android:layout_alignStart="@+id/label_time" />
+        android:layout_alignLeft="@+id/stop_button" />
 
     <Button
         android:text="Start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/start_button"
-        android:layout_below="@+id/average_speed"
-        android:layout_alignLeft="@+id/average_speed"
-        android:layout_alignStart="@+id/average_speed" />
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <Button
         android:text="Stop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/stop_button"
-        android:layout_below="@+id/total_distance"
-        android:layout_alignLeft="@+id/label_total_distance"
-        android:layout_alignStart="@+id/label_total_distance" />
-
-    <TextView
-        android:text="Time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/label_time"
-        android:textSize="14sp"
-        android:layout_alignParentTop="true"
+        android:layout_below="@+id/start_button"
         android:layout_alignParentRight="true"
-        android:layout_toRightOf="@+id/start_button"
-        android:layout_toEndOf="@+id/start_button"
-        android:layout_marginLeft="46dp"
-        android:layout_marginStart="46dp" />
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>

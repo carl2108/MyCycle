@@ -12,6 +12,7 @@ import android.util.Log;
  */
 
 public class MainActivity extends AppCompatActivity implements CustomLocationProvider.CustomLocationListener {
+    private final static String LOG = "LOG";
 
     TestFragment testFragment;
     StopwatchFragment stopwatchFragment;
@@ -20,13 +21,9 @@ public class MainActivity extends AppCompatActivity implements CustomLocationPro
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Remove title bar
-        getSupportActionBar().hide();
+        getSupportActionBar().hide();                                                               //Remove title bar
 
-        //Remove notification bar
-        //this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-
+        //this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);        //Remove notification bar
         setContentView(R.layout.activity_main);
 
         stopwatchFragment = new StopwatchFragment();
@@ -42,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements CustomLocationPro
         fragmentTransaction.add(R.id.activity_main_3, testFragment, "testFragment");
         fragmentTransaction.commit();
 
-
+        Log.e(LOG, "Done");
     }
 
     @Override

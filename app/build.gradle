@@ -30,5 +30,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile 'com.jjoe64:graphview:4.2.1'
     compile 'org.osmdroid:osmdroid-android:5.6.4'
+    compile 'com.google.code.gson:gson:2.8.0'
     testCompile 'junit:junit:4.12'
 }

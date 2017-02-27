@@ -5,6 +5,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,13 @@ import android.widget.TextView;
 
 import java.text.DecimalFormat;
 
-public class StopwatchFragment extends Fragment {
+public class StopwatchFragment extends Fragment implements View.OnClickListener {
+
+    private final static String LOG = "LOG";
+    private final static int SECONDS_IN_HOUR = 60*60;
+    private final static int MILLISECONDS_IN_SECOND = 1000;
+    private final static DecimalFormat decimalFormat = new DecimalFormat("#.##");
+    private final static String TIMER_INIT = "00:00";
 
     private DistanceCalculator distanceCalculator;
     private Chronometer timer;
@@ -23,16 +30,21 @@ public class StopwatchFragment extends Fragment {
 
     private TextView textViewTotalDistance, textViewCurrentSpeed, textViewAverageSpeed;
 
-    private double currLongitude = -999, currLatitude = -999, prevLongitude, prevLatitude, currDistance, totalDistance,
-                    currTime, prevTime, timeDiff, currSpeed, averageSpeed, averageSpeedRunningTotal, averageSpeedSections = 0;
+    private int sectionCounter;
+    private double currLongitude, currLatitude, prevLongitude, prevLatitude, currDistance, totalDistance ,
+                    currTime, prevTime, timeDiff, currSpeed, averageSpeed, averageSpeedRunningTotal, totalTime;
 
-    DecimalFormat decimalFormat = new DecimalFormat("#.##");
+    private RouteDAO routeDAO;
+    private Route newRoute;
+    View view;
+
+    boolean running = false;        //TODO - only calc stats on gps update when running - handle in main activity?
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                 Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.stopwatch_fragment, container, false);
+        view = inflater.inflate(R.layout.stopwatch_fragment, container, false);
 
         distanceCalculator = new HaversineDistanceCalculator();
 
@@ -40,25 +52,16 @@ public class StopwatchFragment extends Fragment {
         timer = (Chronometer) view.findViewById(R.id.chronometer);
 
         startButton = (Button) view.findViewById(R.id.start_button);
+        startButton.setOnClickListener(this);
         stopButton = (Button) view.findViewById(R.id.stop_button);
-
-        startButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {                                                      //use switch statement
-                timer.setBase(SystemClock.elapsedRealtime());
-                timer.start();
-            }
-        });
-        stopButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                timer.stop();
-            }
-        });
+        stopButton.setOnClickListener(this);
 
         textViewAverageSpeed = (TextView) view.findViewById(R.id.average_speed);
         textViewCurrentSpeed = (TextView) view.findViewById(R.id.current_speed);
         textViewTotalDistance = (TextView) view.findViewById(R.id.total_distance);
+
+        routeDAO = new RouteDAO(getActivity().getApplicationContext());
+        resetRoute();
 
         return view;
     }
@@ -71,8 +74,10 @@ public class StopwatchFragment extends Fragment {
         }
 
         prevTime = currTime;
-        currTime = (System.currentTimeMillis() - timer.getBase()) / 1000;                           //total cycle time so far
-        timeDiff = currTime - prevTime;                                                             //time for previous section
+        currTime = (System.currentTimeMillis() - timer.getBase()) / MILLISECONDS_IN_SECOND;         //total cycle time so far
+        if(prevTime != 0)
+            timeDiff = currTime - prevTime;                                                          //time for previous section
+        totalTime += timeDiff;
 
         prevLatitude = currLatitude;
         prevLongitude = currLongitude;
@@ -84,19 +89,85 @@ public class StopwatchFragment extends Fragment {
 
         totalDistance += currDistance;                                                              //total distance textview
 
-        currSpeed = currDistance/timeDiff;                                                          //current speed textview
+        if(timeDiff != 0)
+            currSpeed = currDistance*SECONDS_IN_HOUR/timeDiff;                                      //current speed textview
 
         /*averageSpeedRunningTotal += currSpeed;
         averageSpeedSections++;
-        averageSpeed = averageSpeedRunningTotal/averageSpeedSections;*/                               //average speed - calculated by rolling average
+        averageSpeed = averageSpeedRunningTotal/averageSpeedSections;*/                             //average speed - calculated by rolling average
 
-        averageSpeed = totalDistance/currTime;                                                      //average speed - calculated by total distance/time
+        if(totalTime != 0)
+            averageSpeed = totalDistance*SECONDS_IN_HOUR/totalTime;                                 //average speed - calculated by total distance/time
 
         textViewAverageSpeed.setText(decimalFormat.format(averageSpeed));
         textViewCurrentSpeed.setText(decimalFormat.format(currSpeed));
-        //textViewTotalDistance.setText(decimalFormat.format(totalDistance));
-        textViewTotalDistance.setText(String.valueOf(1));
+        textViewTotalDistance.setText(decimalFormat.format(totalDistance));
 
+        Log.i(LOG, "TimeDiff: " + timeDiff);
+        Log.i(LOG, "TotalTime: " + totalTime);
+        Log.i(LOG, "CurrDistance: " + currDistance);
+        Log.i(LOG, "TotalDistance: " + totalDistance);
+        Log.i(LOG, "CurrSpeed: " + currSpeed);
+        Log.i(LOG, "AverageSpeed: " + averageSpeed);
+
+        newRoute.addSection(new RouteSection(sectionCounter++, new MyLocation(location), currTime, currDistance, currSpeed));
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.start_button:
+                timer.setBase(SystemClock.elapsedRealtime());
+                timer.start();
+                prevTime = timer.getBase();
+                break;
+            case R.id.stop_button:
+                timer.stop();
+                endRoute();
+                break;
+        }
+    }
+
+    public void endRoute() {
+        newRoute.setTotalDistance(totalDistance);
+        newRoute.setTotalTime(totalTime);
+        newRoute.setAverageSpeed(averageSpeed);
+        routeDAO.save(newRoute);
+        Log.v(LOG, "Route " + newRoute.getID() + " saved!");
+        resetRoute();
+    }
+
+    public void resetRoute() {
+        newRoute = new Route();
+        newRoute.setID(routeDAO.getNextRouteID());
+        initRouteVariables();
+        resetTextViews();
+    }
+
+    public void initRouteVariables() {
+        sectionCounter = 0;
+        currLongitude = -999;
+        currLatitude = -999;
+        prevLongitude = -999;
+        prevLatitude = -999;
+        currDistance = 0;
+        totalDistance = 0;
+        currTime = 0;
+        prevTime = 0;
+        timeDiff = 0;
+        currSpeed = 0;
+        averageSpeed = 0;
+        averageSpeedRunningTotal = 0;
+        totalTime = 0;
+    }
+
+    public void resetTextViews() {
+        textViewAverageSpeed.setText(decimalFormat.format(averageSpeed));
+        textViewCurrentSpeed.setText(decimalFormat.format(currSpeed));
+        textViewTotalDistance.setText(decimalFormat.format(totalDistance));
+        timer = new Chronometer(getActivity().getBaseContext());
+        timer = (Chronometer) view.findViewById(R.id.chronometer);
+        timer.setText(TIMER_INIT);
     }
 
 }
