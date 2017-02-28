@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
 
+import org.osmdroid.util.GeoPoint;
+
 import java.text.DecimalFormat;
 
 public class StopwatchFragment extends Fragment implements View.OnClickListener {
@@ -22,11 +24,13 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
     private final static int MILLISECONDS_IN_SECOND = 1000;
     private final static DecimalFormat decimalFormat = new DecimalFormat("#.##");
     private final static String TIMER_INIT = "00:00";
+    private final static String BUTTON_PAUSE = "PAUSE";
+    private final static String BUTTON_RESUME = "RESUME";
 
     private DistanceCalculator distanceCalculator;
     private Chronometer timer;
 
-    private Button startButton, stopButton;
+    private Button startButton, stopButton, pauseButton, resetButton;
 
     private TextView textViewTotalDistance, textViewCurrentSpeed, textViewAverageSpeed;
 
@@ -40,12 +44,16 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
 
     boolean running = false;        //TODO - only calc stats on gps update when running - handle in main activity?
 
+    MyPolyline routeLine = new MyPolyline();
+    MapFragmentListener mapFragmentListener;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                 Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.stopwatch_fragment, container, false);
 
+        mapFragmentListener = (MapFragmentListener) getActivity();
         distanceCalculator = new HaversineDistanceCalculator();
 
         timer = new Chronometer(getActivity().getBaseContext());
@@ -53,21 +61,30 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
 
         startButton = (Button) view.findViewById(R.id.start_button);
         startButton.setOnClickListener(this);
+        pauseButton = (Button) view.findViewById(R.id.pause_button);
+        pauseButton.setOnClickListener(this);
+        pauseButton.setEnabled(false);
+        pauseButton.setVisibility(View.INVISIBLE);
+        resetButton = (Button) view.findViewById(R.id.reset_button);
+        resetButton.setOnClickListener(this);
+        resetButton.setEnabled(false);
+        resetButton.setVisibility(View.INVISIBLE);
         stopButton = (Button) view.findViewById(R.id.stop_button);
         stopButton.setOnClickListener(this);
+        stopButton.setEnabled(false);
 
         textViewAverageSpeed = (TextView) view.findViewById(R.id.average_speed);
         textViewCurrentSpeed = (TextView) view.findViewById(R.id.current_speed);
         textViewTotalDistance = (TextView) view.findViewById(R.id.total_distance);
 
         routeDAO = new RouteDAO(getActivity().getApplicationContext());
-        resetRoute();
+        initRoute();
 
         return view;
     }
 
     public void updateStopwatch(Location location) {
-        if(currLongitude == -999) {                                                                 //handle the first received gps update
+        if(!running || currLongitude == -999) {                                                                 //handle the first received gps update
             currLongitude = location.getLongitude();
             currLatitude = location.getLatitude();
             return;
@@ -111,6 +128,9 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
         Log.i(LOG, "AverageSpeed: " + averageSpeed);
 
         newRoute.addSection(new RouteSection(sectionCounter++, new MyLocation(location), currTime, currDistance, currSpeed));
+        GeoPoint currPoint = new GeoPoint(location);
+        routeLine.addPoint(currPoint);
+        mapFragmentListener.updateMap(routeLine);
     }
 
     @Override
@@ -120,10 +140,47 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
                 timer.setBase(SystemClock.elapsedRealtime());
                 timer.start();
                 prevTime = timer.getBase();
+                running = true;
+                startButton.setEnabled(false);
+                startButton.setVisibility(View.INVISIBLE);
+                stopButton.setEnabled(true);
+                pauseButton.setEnabled(true);
+                pauseButton.setVisibility(View.VISIBLE);
                 break;
             case R.id.stop_button:
                 timer.stop();
                 endRoute();
+                running = false;
+                resetButton.setEnabled(true);
+                resetButton.setVisibility(View.VISIBLE);
+                stopButton.setEnabled(false);
+                stopButton.setVisibility(View.INVISIBLE);
+                startButton.setEnabled(false);
+                startButton.setVisibility(View.VISIBLE);
+                pauseButton.setEnabled(false);
+                pauseButton.setVisibility(View.INVISIBLE);
+                break;
+            case R.id.pause_button:
+                if(running) {
+                    running = false;
+                    timer.stop();
+                    pauseButton.setText(BUTTON_RESUME);
+                } else {
+                    running = true;
+                    timer.start();
+                    pauseButton.setText(BUTTON_PAUSE);
+                }
+                break;
+            case R.id.reset_button:
+                startButton.setEnabled(true);
+                startButton.setVisibility(View.VISIBLE);
+                stopButton.setEnabled(false);
+                stopButton.setVisibility(View.VISIBLE);
+                resetButton.setEnabled(false);
+                resetButton.setVisibility(View.INVISIBLE);
+                pauseButton.setEnabled(false);
+                pauseButton.setVisibility(View.INVISIBLE);
+                resetRoute();
                 break;
         }
     }
@@ -134,14 +191,19 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
         newRoute.setAverageSpeed(averageSpeed);
         routeDAO.save(newRoute);
         Log.v(LOG, "Route " + newRoute.getID() + " saved!");
-        resetRoute();
     }
 
-    public void resetRoute() {
+    public void initRoute() {
         newRoute = new Route();
         newRoute.setID(routeDAO.getNextRouteID());
         initRouteVariables();
         resetTextViews();
+        routeLine.clearPath();
+    }                                                                   //initialise a new route
+
+    public void resetRoute() {                                                                      //initialise a new route and clear the map fragment
+        initRoute();
+        mapFragmentListener.clearRoute();
     }
 
     public void initRouteVariables() {
@@ -168,6 +230,11 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
         timer = new Chronometer(getActivity().getBaseContext());
         timer = (Chronometer) view.findViewById(R.id.chronometer);
         timer.setText(TIMER_INIT);
+    }
+
+    public interface MapFragmentListener {
+        void updateMap(MyPolyline polyline);
+        void clearRoute();
     }
 
 }

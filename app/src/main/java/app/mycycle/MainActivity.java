@@ -11,11 +11,12 @@ import android.util.Log;
  * Created by carloconnor on 15/02/17.
  */
 
-public class MainActivity extends AppCompatActivity implements CustomLocationProvider.CustomLocationListener {
+public class MainActivity extends AppCompatActivity implements CustomLocationProvider.CustomLocationListener, StopwatchFragment.MapFragmentListener {
     private final static String LOG = "LOG";
 
     TestFragment testFragment;
     StopwatchFragment stopwatchFragment;
+    MapFragment mapFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements CustomLocationPro
 
         stopwatchFragment = new StopwatchFragment();
         SpeedGraphFragment speedGraphFragment = new SpeedGraphFragment();
-        MapFragment mapFragment = new MapFragment();
+        mapFragment = new MapFragment();
         testFragment = new TestFragment();
 
         FragmentManager fragmentManager = getFragmentManager();
@@ -48,4 +49,13 @@ public class MainActivity extends AppCompatActivity implements CustomLocationPro
         stopwatchFragment.updateStopwatch(location);
     }
 
+    @Override
+    public void updateMap(MyPolyline polyline) {
+        mapFragment.drawRoute(polyline);
+    }
+
+    @Override
+    public void clearRoute() {
+        mapFragment.clearRoute();
+    }
 }

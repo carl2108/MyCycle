@@ -13,7 +13,6 @@ import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
@@ -25,15 +24,26 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 public class MapFragment extends Fragment {
     private final static String LOG = "LOG";
+    private final static int CURRENT_LOCATION_OVERLAY_INDEX = 3;
+    private final static int COMPASS_OVERLAY_INDEX = 2;
+    private final static int CURRENT_ROUTE_OVERLAY_INDEX = 1;
+    private final static int PREVIOUS_ROUTE_OVERLAY_INDEX = 0;
 
     MapView map;
+    View view;
+    Context context;
+    MyPolyline currentRouteOverlay;
+    MyPolyline previousRouteOverlay;
+
+    MyLocationNewOverlay myLocationOverlay;
+    CompassOverlay compassOverlay;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.map_fragment, container, false);
-        Context context = view.getContext();
+        view = inflater.inflate(R.layout.map_fragment, container, false);
+        context = view.getContext();
 
 
         //TODO important! set your user agent to prevent getting banned from the osm servers
@@ -50,27 +60,41 @@ public class MapFragment extends Fragment {
         GeoPoint startPoint = new GeoPoint(-6.330, 53.53);
         mapController.setCenter(startPoint);
 
-
-
         GpsMyLocationProvider gpsMyLocationProvider = new CustomLocationProvider(context, getActivity());              //my location overlay
-        MyLocationNewOverlay myLocationOverlay = new MyLocationNewOverlay(gpsMyLocationProvider, map);
+        myLocationOverlay = new MyLocationNewOverlay(gpsMyLocationProvider, map);
         myLocationOverlay.enableMyLocation();
         //GeoPoint myLocation = myLocationOverlay.getMyLocation();                                                      //todo - use to initialise stopwatch fragment location?
         //Log.v("LOG", "Longitude: " + myLocation.getLongitude() + " Latitude: " + myLocation.getLatitude());
         myLocationOverlay.enableFollowLocation();
-        map.getOverlays().add(myLocationOverlay);
+        //map.getOverlayManager().add(CURRENT_LOCATION_OVERLAY_INDEX, myLocationOverlay);
 
-        Polyline routeLine = new Polyline();
-
-        CompassOverlay compassOverlay = new CompassOverlay(context, new InternalCompassOrientationProvider(context), map);          //compass overlay
+        compassOverlay = new CompassOverlay(context, new InternalCompassOrientationProvider(context), map);          //compass overlay
         compassOverlay.enableCompass();
-        map.getOverlays().add(compassOverlay);
+        //map.getOverlayManager().add(COMPASS_OVERLAY_INDEX, compassOverlay);
+
+        currentRouteOverlay = new MyPolyline();
+        previousRouteOverlay = new MyPolyline();
+        //map.getOverlayManager().add(CURRENT_ROUTE_OVERLAY_INDEX, currentRouteLine);
+
+        addOverlays();
 
         return view;
     }
 
-    public void drawRoute(Polyline polyline) {
-        map.getOverlays().add(polyline);
+    public void drawRoute(MyPolyline polyline) {
+        map.getOverlayManager().remove(CURRENT_ROUTE_OVERLAY_INDEX);
+        map.getOverlayManager().add(CURRENT_ROUTE_OVERLAY_INDEX, polyline);
+    }
+
+    public void addOverlays() {
+        map.getOverlayManager().add(PREVIOUS_ROUTE_OVERLAY_INDEX, previousRouteOverlay);
+        map.getOverlayManager().add(CURRENT_ROUTE_OVERLAY_INDEX, currentRouteOverlay);
+        map.getOverlayManager().add(COMPASS_OVERLAY_INDEX, compassOverlay);
+        map.getOverlayManager().add(CURRENT_LOCATION_OVERLAY_INDEX, myLocationOverlay);
+    }
+
+    public void clearRoute() {
+        currentRouteOverlay.clearPath();
     }
 
 }
