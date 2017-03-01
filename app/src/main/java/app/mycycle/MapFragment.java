@@ -82,8 +82,7 @@ public class MapFragment extends Fragment {
     }
 
     public void drawRoute(MyPolyline polyline) {
-        map.getOverlayManager().remove(CURRENT_ROUTE_OVERLAY_INDEX);
-        map.getOverlayManager().add(CURRENT_ROUTE_OVERLAY_INDEX, polyline);
+        map.getOverlayManager().set(CURRENT_ROUTE_OVERLAY_INDEX, polyline);
     }
 
     public void addOverlays() {
