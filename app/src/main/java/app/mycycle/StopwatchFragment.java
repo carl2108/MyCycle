@@ -27,7 +27,6 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
 
     private DistanceCalculator distanceCalculator;
     private Chronometer timer;
-
     private Button startButton, stopButton, resetButton;
 
     private TextView textViewTotalDistance, textViewCurrentSpeed, textViewAverageSpeed;
@@ -51,10 +50,7 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
                                 Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.stopwatch_fragment, container, false);
 
-        mapFragmentListener = (MapFragmentListener) getParentFragment();
-        //mapFragmentListener = getFragmentManager().getFragments().findFragmentByWho("android:fragment:0");
-        //getFragmentManager().findFragmentById()
-
+        mapFragmentListener = (MapFragmentListener) getActivity();
         distanceCalculator = new HaversineDistanceCalculator();
 
         timer = new Chronometer(getActivity().getBaseContext());
@@ -74,7 +70,7 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
         textViewCurrentSpeed = (TextView) view.findViewById(R.id.current_speed);
         textViewTotalDistance = (TextView) view.findViewById(R.id.total_distance);
 
-        routeDAO = new RouteDAO(getParentFragment().getActivity().getApplicationContext());
+        routeDAO = new RouteDAO(getActivity().getApplicationContext());
         initRoute();
 
         return view;

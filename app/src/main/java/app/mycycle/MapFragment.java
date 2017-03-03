@@ -1,6 +1,5 @@
 package app.mycycle;
 
-
 import android.content.Context;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -95,6 +94,10 @@ public class MapFragment extends Fragment {
 
     public void clearRoute() {
         currentRouteOverlay.clearPath();
+    }
+
+    public boolean test(boolean t) {
+        return t;
     }
 
 }

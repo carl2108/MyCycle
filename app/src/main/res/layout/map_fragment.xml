@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="app.mycycle.TabbedActivity">
+    tools:context="app.mycycle.MainActivity">
 
     <org.osmdroid.views.MapView
         android:id="@+id/map"

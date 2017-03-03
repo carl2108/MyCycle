@@ -1,9 +1,9 @@
 package app.mycycle;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -16,6 +16,7 @@ public class MainActivity extends AppCompatActivity implements CustomLocationPro
 
     StopwatchFragment stopwatchFragment;
     MapFragment mapFragment;
+    TabbedFragment tabbedFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,18 +24,16 @@ public class MainActivity extends AppCompatActivity implements CustomLocationPro
         setContentView(R.layout.activity_main);
 
         stopwatchFragment = new StopwatchFragment();
-        SpeedGraphFragment speedGraphFragment = new SpeedGraphFragment();
-        mapFragment = new MapFragment();
+        //SpeedGraphFragment speedGraphFragment = new SpeedGraphFragment();
+        tabbedFragment = new TabbedFragment();
 
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        /*fragmentTransaction.add(R.id.activity_main_1, stopwatchFragment, "stopwatchFragment");
-        fragmentTransaction.add(R.id.activity_main_2, mapFragment, "mapFragment");
-        fragmentTransaction.add(R.id.activity_main_3, speedGraphFragment, "speedGraphFragment");*/
-
+        fragmentTransaction.add(R.id.activity_main_1, stopwatchFragment, "stopwatchFragment");
+        fragmentTransaction.add(R.id.activity_main_2, tabbedFragment, "tabbedFragment");
         fragmentTransaction.commit();
 
-        Log.e(LOG, "Done");
+        Log.i(LOG, "Done");
     }
 
     @Override
@@ -45,11 +44,23 @@ public class MainActivity extends AppCompatActivity implements CustomLocationPro
 
     @Override
     public void updateMap(MyPolyline polyline) {
+        if(mapFragment == null)
+            assignMapFragment();
         mapFragment.drawRoute(polyline);
     }
 
     @Override
     public void clearRoute() {
+        if(mapFragment == null)
+            assignMapFragment();
         mapFragment.clearRoute();
+    }
+
+    protected void assignMapFragment() {
+        try{
+            mapFragment = (MapFragment) getSupportFragmentManager().getFragments().get(2);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not find mapFragment");
+        }
     }
 }
