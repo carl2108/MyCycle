@@ -4,7 +4,7 @@
     android:id="@+id/stopwatch_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="app.mycycle.MainActivity">
+    tools:context="app.mycycle.TabbedActivity">
 
     <TextView
         android:text="Current Speed"
@@ -65,8 +65,7 @@
         android:layout_marginRight="25dp"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/label_current_speed"
-        android:layout_toLeftOf="@+id/start_button"
-        android:layout_toStartOf="@+id/start_button" />
+        android:layout_toLeftOf="@+id/start_button" />
 
     <Chronometer
         android:layout_width="wrap_content"
@@ -114,33 +113,27 @@
         android:id="@+id/start_button"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <Button
-        android:text="Pause"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/pause_button"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <Button
-        android:text="Stop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/stop_button"
-        android:layout_below="@+id/start_button"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@+id/average_speed" />
 
     <Button
         android:text="Reset"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/reset_button"
-        android:layout_below="@+id/start_button"
+        android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@+id/start_button" />
+
+    <Button
+        android:text="Stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/stop_button"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@+id/start_button" />
 
 </RelativeLayout>

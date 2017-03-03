@@ -11,6 +11,7 @@ public class RouteSection {
     private MyLocation location;
     private double sectionTime, sectionDistance, sectionSpeed;
     private int sectionID;
+    private DistanceCalculator distanceCalculator = new HaversineDistanceCalculator();
 
     public RouteSection() {}
 
@@ -69,6 +70,16 @@ public class RouteSection {
 
     public void setSectionID(int sectionID) {
         this.sectionID = sectionID;
+    }
+
+    public boolean areSameRouteSection(RouteSection routeSection1, RouteSection routeSection2, double marginOfError) {
+        double distance = distanceCalculator.calculateDistance(routeSection1.getLocation().getLatitude(), routeSection1.getLocation().getLongitude(),
+                                                routeSection2.getLocation().getLongitude(), routeSection2.getLocation().getLongitude());
+
+        if(distance > marginOfError)
+            return false;
+        else
+            return true;
     }
 
 }

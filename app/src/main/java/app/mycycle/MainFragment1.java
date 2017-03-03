@@ -1,26 +1,29 @@
 package app.mycycle;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 /**
- * Created by carloconnor on 15/02/17.
+ * Created by carloconnor on 01/03/17.
  */
 
-public class MainActivity extends AppCompatActivity implements CustomLocationProvider.CustomLocationListener, StopwatchFragment.MapFragmentListener {
+public class MainFragment1 extends Fragment implements CustomLocationProvider.CustomLocationListener, StopwatchFragment.MapFragmentListener {
     private final static String LOG = "LOG";
 
     StopwatchFragment stopwatchFragment;
     MapFragment mapFragment;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.activity_main, container, false);
 
         stopwatchFragment = new StopwatchFragment();
         SpeedGraphFragment speedGraphFragment = new SpeedGraphFragment();
@@ -28,13 +31,12 @@ public class MainActivity extends AppCompatActivity implements CustomLocationPro
 
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        /*fragmentTransaction.add(R.id.activity_main_1, stopwatchFragment, "stopwatchFragment");
+        fragmentTransaction.add(R.id.activity_main_1, stopwatchFragment, "stopwatchFragment");
         fragmentTransaction.add(R.id.activity_main_2, mapFragment, "mapFragment");
-        fragmentTransaction.add(R.id.activity_main_3, speedGraphFragment, "speedGraphFragment");*/
-
+        fragmentTransaction.add(R.id.activity_main_3, speedGraphFragment, "speedGraphFragment");
         fragmentTransaction.commit();
 
-        Log.e(LOG, "Done");
+        return view;
     }
 
     @Override

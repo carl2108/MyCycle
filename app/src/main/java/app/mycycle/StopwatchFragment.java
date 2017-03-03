@@ -1,10 +1,10 @@
 package app.mycycle;
 
-import android.app.Fragment;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,13 +24,11 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
     private final static int MILLISECONDS_IN_SECOND = 1000;
     private final static DecimalFormat decimalFormat = new DecimalFormat("#.##");
     private final static String TIMER_INIT = "00:00";
-    private final static String BUTTON_PAUSE = "PAUSE";
-    private final static String BUTTON_RESUME = "RESUME";
 
     private DistanceCalculator distanceCalculator;
     private Chronometer timer;
 
-    private Button startButton, stopButton, pauseButton, resetButton;
+    private Button startButton, stopButton, resetButton;
 
     private TextView textViewTotalDistance, textViewCurrentSpeed, textViewAverageSpeed;
 
@@ -42,7 +40,7 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
     private Route newRoute;
     View view;
 
-    boolean running = false;        //TODO - only calc stats on gps update when running - handle in main activity?
+    boolean running = false;
 
     MyPolyline routeLine = new MyPolyline();
     MapFragmentListener mapFragmentListener;
@@ -53,7 +51,10 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
                                 Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.stopwatch_fragment, container, false);
 
-        mapFragmentListener = (MapFragmentListener) getActivity();
+        mapFragmentListener = (MapFragmentListener) getParentFragment();
+        //mapFragmentListener = getFragmentManager().getFragments().findFragmentByWho("android:fragment:0");
+        //getFragmentManager().findFragmentById()
+
         distanceCalculator = new HaversineDistanceCalculator();
 
         timer = new Chronometer(getActivity().getBaseContext());
@@ -61,10 +62,6 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
 
         startButton = (Button) view.findViewById(R.id.start_button);
         startButton.setOnClickListener(this);
-        pauseButton = (Button) view.findViewById(R.id.pause_button);
-        pauseButton.setOnClickListener(this);
-        pauseButton.setEnabled(false);
-        pauseButton.setVisibility(View.INVISIBLE);
         resetButton = (Button) view.findViewById(R.id.reset_button);
         resetButton.setOnClickListener(this);
         resetButton.setEnabled(false);
@@ -77,7 +74,7 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
         textViewCurrentSpeed = (TextView) view.findViewById(R.id.current_speed);
         textViewTotalDistance = (TextView) view.findViewById(R.id.total_distance);
 
-        routeDAO = new RouteDAO(getActivity().getApplicationContext());
+        routeDAO = new RouteDAO(getParentFragment().getActivity().getApplicationContext());
         initRoute();
 
         return view;
@@ -144,8 +141,6 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
                 startButton.setEnabled(false);
                 startButton.setVisibility(View.INVISIBLE);
                 stopButton.setEnabled(true);
-                pauseButton.setEnabled(true);
-                pauseButton.setVisibility(View.VISIBLE);
                 break;
             case R.id.stop_button:
                 timer.stop();
@@ -157,19 +152,6 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
                 stopButton.setVisibility(View.INVISIBLE);
                 startButton.setEnabled(false);
                 startButton.setVisibility(View.VISIBLE);
-                pauseButton.setEnabled(false);
-                pauseButton.setVisibility(View.INVISIBLE);
-                break;
-            case R.id.pause_button:
-                if(running) {
-                    running = false;
-                    timer.stop();
-                    pauseButton.setText(BUTTON_RESUME);
-                } else {
-                    running = true;
-                    timer.start();
-                    pauseButton.setText(BUTTON_PAUSE);
-                }
                 break;
             case R.id.reset_button:
                 startButton.setEnabled(true);
@@ -178,8 +160,6 @@ public class StopwatchFragment extends Fragment implements View.OnClickListener 
                 stopButton.setVisibility(View.VISIBLE);
                 resetButton.setEnabled(false);
                 resetButton.setVisibility(View.INVISIBLE);
-                pauseButton.setEnabled(false);
-                pauseButton.setVisibility(View.INVISIBLE);
                 resetRoute();
                 break;
         }
